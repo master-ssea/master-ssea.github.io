@@ -1,15 +1,15 @@
-var CACHE = "bosch-cache-v2";
+var CACHE = "ssea-cache";
 
-self.addEventListener("install", function(evt) {
+self.addEventListener("install", function (evt) {
   console.log("The service worker is being installed.");
   evt.waitUntil(precache());
 });
 
-self.addEventListener("fetch", function(evt) {
+self.addEventListener("fetch", function (evt) {
   console.log("The service worker is serving the asset.");
   evt.respondWith(
-    fromNetwork(evt.request, 1000).catch(function() {
-      return fromCache(evt.request).catch(function() {
+    fromNetwork(evt.request, 3000).catch(function () {
+      return fromCache(evt.request).catch(function () {
         console.log("Trying to serve offline page.");
         return caches.match("offline.html");
       });
@@ -18,7 +18,7 @@ self.addEventListener("fetch", function(evt) {
 });
 
 function precache() {
-  return caches.open(CACHE).then(function(cache) {
+  return caches.open(CACHE).then(function (cache) {
     return cache.addAll([
       "index.html",
       "bundle.js",
@@ -30,9 +30,9 @@ function precache() {
 }
 
 function fromNetwork(request, timeout) {
-  return new Promise(function(fulfill, reject) {
+  return new Promise(function (fulfill, reject) {
     var timeoutId = setTimeout(reject, timeout);
-    fetch(request).then(function(response) {
+    fetch(request).then(function (response) {
       clearTimeout(timeoutId);
       fulfill(response);
     }, reject);
@@ -40,8 +40,8 @@ function fromNetwork(request, timeout) {
 }
 
 function fromCache(request) {
-  return caches.open(CACHE).then(function(cache) {
-    return cache.match(request).then(function(matching) {
+  return caches.open(CACHE).then(function (cache) {
+    return cache.match(request).then(function (matching) {
       return matching || Promise.reject("no-match");
     });
   });
